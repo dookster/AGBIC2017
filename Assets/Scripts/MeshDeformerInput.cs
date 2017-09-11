@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class MeshDeformerInput : MonoBehaviour {
 	
@@ -6,7 +6,7 @@ public class MeshDeformerInput : MonoBehaviour {
 	public float forceOffset = 0.1f;
 	
 	void Update () {
-		if (Input.GetMouseButton(0)) {
+		if (Input.GetMouseButtonDown(0)) {
 			HandleInput();
 		}
 	}
@@ -20,7 +20,8 @@ public class MeshDeformerInput : MonoBehaviour {
 			if (deformer) {
 				Vector3 point = hit.point;
 				point += hit.normal * forceOffset;
-				deformer.AddDeformingForce(point, force);
+                //deformer.AddDeformingForce(point, force);
+                deformer.EatAtPoint(point, force);
 			}
             MeshEater eater = hit.collider.GetComponent<MeshEater>();
             if (eater)
