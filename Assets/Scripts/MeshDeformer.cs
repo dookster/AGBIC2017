@@ -33,6 +33,7 @@ public class MeshDeformer : MonoBehaviour {
 
         deformingMesh.vertices = displacedVertices;
 		deformingMesh.RecalculateNormals();
+        deformingMesh.RecalculateTangents();
 
         meshCollider.sharedMesh = null;
         meshCollider.sharedMesh = deformingMesh;
@@ -80,7 +81,11 @@ public class MeshDeformer : MonoBehaviour {
         float attenuatedAmount = amount / (1f + pointToVertex.sqrMagnitude);
         Debug.Log("Amount: " + attenuatedAmount);
         //displacedVertices[i] = originalVertices[i] + ((Vector3.zero - originalVertices[i]).normalized * attenuatedAmount);
-        displacedVertices[i] = displacedVertices[i] + ((Vector3.zero - originalVertices[i]).normalized * attenuatedAmount);
+        Vector3 newVert = displacedVertices[i] + ((Vector3.zero - originalVertices[i]).normalized * attenuatedAmount);
+        if(Vector3.Distance(newVert, originalVertices[i]) < 0.2f)
+        {
+            displacedVertices[i] = newVert;
+        }
     }
 
   //  void AddForceToVertex (int i, Vector3 point, float force) {
