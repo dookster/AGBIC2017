@@ -33,6 +33,7 @@ public class NewGrubSegment : MonoBehaviour {
         planetNormal = transform.up;
         originalScale = graphicTransform.localScale;
         //startForward = transform.forward;
+        PlaceOnGround();
 	}
 	
 	void Update ()
@@ -85,21 +86,26 @@ public class NewGrubSegment : MonoBehaviour {
             {
                 graphicTransform.localScale = Vector3.Lerp(Vector3.Scale(originalScale, grub.squishAmount), originalScale, Interpolators.interpolate((CurMoveDelta - 0.5f) * 2, grub.squishInterpolator));
             }
-            // Place on ground
-            planetNormal = (grub.currentPlanet.transform.position - transform.position).normalized;
-            Debug.DrawRay(transform.position - (planetNormal * 5), planetNormal * 20f, Color.red, 1);
-            //if (Physics.Raycast(transform.position - (planetNormal * 5), planetNormal, out hitInfo, 100f, planetLayerMask))
-        
-            if (Physics.SphereCast(transform.position - (planetNormal * 5), 0.5f, planetNormal, out hitInfo, 100f, planetLayerMask))
-            {
-                //Debug.DrawRay(hitInfo.point, hitInfo.normal, Color.blue, 1);
-                DebugExtension.DebugWireSphere(hitInfo.point, Color.magenta, 0.5f, 0.5f);
-                transform.position = hitInfo.point;
-                transform.localRotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(transform.forward, hitInfo.normal), hitInfo.normal);
-            }
+            PlaceOnGround();
         }
 
 	}
+
+    public void PlaceOnGround()
+    {
+        // Place on ground
+        planetNormal = (grub.currentPlanet.transform.position - transform.position).normalized;
+        Debug.DrawRay(transform.position - (planetNormal * 5), planetNormal * 20f, Color.red, 1);
+        //if (Physics.Raycast(transform.position - (planetNormal * 5), planetNormal, out hitInfo, 100f, planetLayerMask))
+        
+        if (Physics.SphereCast(transform.position - (planetNormal * 5), 0.5f, planetNormal, out hitInfo, 100f, planetLayerMask))
+        {
+            //Debug.DrawRay(hitInfo.point, hitInfo.normal, Color.blue, 1);
+            DebugExtension.DebugWireSphere(hitInfo.point, Color.magenta, 0.5f, 0.5f);
+            transform.position = hitInfo.point;
+            transform.localRotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(transform.forward, hitInfo.normal), hitInfo.normal);
+        }
+    }
 
     private void LateUpdate()
     {
@@ -120,4 +126,37 @@ public class NewGrubSegment : MonoBehaviour {
         //startForward = transform.forward;
 
     }
+
+    Coroutine eatAnimation;
+    public void PlaytEatAnimation()
+    {
+        if(eatAnimation == null)
+        {
+            eatAnimation = StartCoroutine(PlayEatAnimationRoutine());
+        }
+    }
+
+    IEnumerator PlayEatAnimationRoutine()
+    {
+        float t = 0;
+        Vector3 eatScale = Vector3.one;
+        while (t < 1)
+        {
+            t += Time.deltaTime * grub.eatAnimSpeed;
+            eatScale = Vector3.Lerp(Vector3.one, grub.eatAnimSquish, t);
+            transform.localScale = eatScale;
+            yield return 0;
+        }
+        t = 0;
+        while (t < 1)
+        {
+            t += Time.deltaTime * grub.eatAnimSpeed;
+            eatScale = Vector3.Lerp(grub.eatAnimSquish, Vector3.one, t);
+            transform.localScale = eatScale;
+            yield return 0;
+        }
+        transform.localScale = Vector3.one;
+        eatAnimation = null;
+    }
+
 }

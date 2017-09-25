@@ -30,6 +30,10 @@ public class NewGrub : MonoBehaviour {
     public Transform GrubMouth;
     public ParticleSystem particleEffect;
 
+    public float eatAnimSpeed;
+    public Vector3 eatAnimSquish;
+    private float eatAnimTime;
+
     public float eatTime = 0.5f;
     private float isEating = 0f;
 
@@ -58,6 +62,11 @@ public class NewGrub : MonoBehaviour {
                 {
                     isEating = eatTime;
                     particleEffect.Play();
+                    FrontSegment.PlaytEatAnimation();
+                    foreach(NewGrubSegment seg in segments)
+                    {
+                        seg.PlaceOnGround();
+                    }
                 }
             }
             
@@ -65,8 +74,8 @@ public class NewGrub : MonoBehaviour {
         else
         {
             isEating -= Time.deltaTime;
-        }
 
+        }
         // Move
         if (Input.GetKey(KeyCode.UpArrow))
         {
@@ -98,6 +107,8 @@ public class NewGrub : MonoBehaviour {
 
             }
         }
+
+        
     }
 
     bool EatFruit()
@@ -130,5 +141,5 @@ public class NewGrub : MonoBehaviour {
         return false;
     }
 
-
+    
 }
