@@ -124,8 +124,8 @@ public class NewGrubSegment : MonoBehaviour {
         }
 
         //startForward = transform.forward;
-
     }
+
 
     Coroutine eatAnimation;
     public void PlaytEatAnimation()

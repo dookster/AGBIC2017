@@ -23,12 +23,18 @@ public class NewGrub : MonoBehaviour {
     private NewGrubSegment FrontSegment;
     private NewGrubSegment SecondSegment;
 
+    private GameMaster gM;
+
     [Header("Eating")]
     public float force = 10f;
     public float forceOffset = 0.1f;
 
+    public AudioClip eatClip;
+    public AudioClip moveClip;
+
     public Transform GrubMouth;
     public ParticleSystem particleEffect;
+    public ParticleSystem particleEffect2;
 
     public float eatAnimSpeed;
     public Vector3 eatAnimSquish;
@@ -37,11 +43,14 @@ public class NewGrub : MonoBehaviour {
     public float eatTime = 0.5f;
     private float isEating = 0f;
 
+    private float totalEatenAmount;
+
 
     float angle;
 
 	void Start ()
     {
+        gM = GameMaster.Instance;
         for (int n = 0; n < segments.Count-1; n++)
         {
             segments[n].nextSegment = segments[n + 1];
@@ -53,6 +62,8 @@ public class NewGrub : MonoBehaviour {
 
     void Update ()
     {
+        if (gM.Paused) return;
+
         // Eat
         if(isEating <= 0)
         {
@@ -62,11 +73,13 @@ public class NewGrub : MonoBehaviour {
                 {
                     isEating = eatTime;
                     particleEffect.Play();
+                    particleEffect2.Play();
                     FrontSegment.PlaytEatAnimation();
                     foreach(NewGrubSegment seg in segments)
                     {
                         seg.PlaceOnGround();
                     }
+                    gM.PlaySound(eatClip, 0.25f);
                 }
             }
             
@@ -81,6 +94,7 @@ public class NewGrub : MonoBehaviour {
         {
             if (!IsMoving)
             {
+                gM.PlaySound(moveClip, 0.25f);
                 segments[0].StartMoving();
                 IsMoving = true;
             }
@@ -107,9 +121,35 @@ public class NewGrub : MonoBehaviour {
 
             }
         }
-
         
     }
+
+    public void GoToPlanetLevel(PlanetLevel level, float time)
+    {
+        ParticleSystem.MainModule settings = particleEffect.main;
+        settings.startColor = new ParticleSystem.MinMaxGradient(level.juiceColor);
+
+        StartCoroutine(NextPlanetRoutine(level, time));
+    }
+
+    IEnumerator NextPlanetRoutine(PlanetLevel level, float levelLoadTime)
+    {
+        float t = 0;
+        while (t < levelLoadTime * 2)
+        {
+            t += Time.deltaTime;
+            yield return 0;
+        }
+        foreach (NewGrubSegment seg in segments)
+        {
+            seg.transform.position = seg.transform.position + seg.transform.up * 5;
+            seg.PlaceOnGround();
+        }
+        foreach (NewGrubSegment seg in segments)
+        {
+        }
+    }
+
 
     bool EatFruit()
     {
@@ -128,15 +168,10 @@ public class NewGrub : MonoBehaviour {
                 point += hit.normal * forceOffset;
                 //deformer.AddDeformingForce(point, force);
                 DebugExtension.DebugWireSphere(point, Color.red, 0.7f, 1f);
-                deformer.EatAtPoint(point, force);
+                float eatenAmount = deformer.EatAtPoint(point, force);
+                Debug.Log("Eaten: " + eatenAmount);
+                return true;
             }
-            MeshEater eater = hit.collider.GetComponent<MeshEater>();
-            if (eater)
-            {
-                Vector3 point = hit.point;
-                eater.EatVertex(point, hit.normal);
-            }
-            return true;
         }
         return false;
     }

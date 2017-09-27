@@ -62,30 +62,34 @@ public class MeshDeformer : MonoBehaviour {
 		}
 	}
 
-    public void EatAtPoint(Vector3 point, float amount)
+    public float EatAtPoint(Vector3 point, float amount)
     {
         point = transform.InverseTransformPoint(point);
+        float amountEaten = 0;
         for (int i = 0; i < displacedVertices.Length; i++)
         {
-            EatAtVertex(i, point, amount);
+            amountEaten += EatAtVertex(i, point, amount);
         }
+        return amountEaten;
     }
 
-    void EatAtVertex(int i, Vector3 point, float amount)
+    float EatAtVertex(int i, Vector3 point, float amount)
     {
-        
         Vector3 pointToVertex = displacedVertices[i] - point;
-        if (pointToVertex.sqrMagnitude > 0.05f) return; // Too far away to be affected
+        if (pointToVertex.sqrMagnitude > 0.05f) return 0; // Too far away to be affected
 
         pointToVertex *= uniformScale;
         float attenuatedAmount = amount / (1f + pointToVertex.sqrMagnitude);
-        Debug.Log("Amount: " + attenuatedAmount);
+        //Debug.Log("Amount: " + attenuatedAmount);
         //displacedVertices[i] = originalVertices[i] + ((Vector3.zero - originalVertices[i]).normalized * attenuatedAmount);
         Vector3 newVert = displacedVertices[i] + ((Vector3.zero - originalVertices[i]).normalized * attenuatedAmount);
-        if(Vector3.Distance(newVert, originalVertices[i]) < 0.2f)
+        float distanceMoved = 0;
+        if (Vector3.Distance(newVert, originalVertices[i]) < 0.2f)
         {
+            distanceMoved = Vector3.Distance(newVert, displacedVertices[i]);
             displacedVertices[i] = newVert;
         }
+        return distanceMoved;
     }
 
   //  void AddForceToVertex (int i, Vector3 point, float force) {
