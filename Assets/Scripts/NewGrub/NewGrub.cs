@@ -79,7 +79,7 @@ public class NewGrub : MonoBehaviour {
                     {
                         seg.PlaceOnGround();
                     }
-                    gM.PlaySound(eatClip, 0.25f);
+                    gM.PlaySound(eatClip, 0.75f);
                 }
             }
             
@@ -94,7 +94,7 @@ public class NewGrub : MonoBehaviour {
         {
             if (!IsMoving)
             {
-                gM.PlaySound(moveClip, 0.25f);
+                gM.PlaySound(moveClip, 1);
                 segments[0].StartMoving();
                 IsMoving = true;
             }

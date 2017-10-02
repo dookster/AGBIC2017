@@ -7,7 +7,7 @@ public class GameMaster : MonoBehaviour {
     private static bool gameMasterFoundOnce = false;
     private static GameMaster instance = null;
 
-    public bool DebugOn = true;
+    public bool DebugOn = false;
 
     public Camera mainCam;
     public CameraController camControl;
@@ -78,9 +78,14 @@ public class GameMaster : MonoBehaviour {
             Debug.Log("Timescale: " + Time.timeScale);
         }
 
-        if (Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             LoadNextLevel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
         }
 	}
 
@@ -94,7 +99,7 @@ public class GameMaster : MonoBehaviour {
         }
         else
         {
-            StartCoroutine( LoadLevelRoutine(levels[currentLevelIndex == 1 ? 0 : 1]));
+            nextLevelRoutine = StartCoroutine( LoadLevelRoutine(levels[currentLevelIndex == 1 ? 0 : 1]));
             grub.GoToPlanetLevel(levels[currentLevelIndex == 1 ? 0 : 1], levelLoadTime);
         }
 
